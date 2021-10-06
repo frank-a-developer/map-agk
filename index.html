@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Agrolink:: Unidades do Brasil - Usinas Cana-de-açucar e Etanol
+    </title>
+
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no initial-scale=1, maximum-scale=1"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@latest/dist/leaflet.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"
+    />
+
+    <script src="https://unpkg.com/leaflet@latest/dist/leaflet-src.js"></script>
+    <script src="industry-brasil.geojson"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <style type="text/css">
+      body {
+        margin: 0;
+      }
+      #map {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <script type="text/javascript">
+      //Exibe mapa com zoom e demais propriedades padrão
+      var myRenderer = L.canvas({
+        padding: 0.5,
+      });
+      let zoom = 5;
+      //var left = -59.597
+      var resolucao = parseInt(window.screen.availWidth / 20);
+      zoom = 2 + 0.06 * resolucao;
+      if (zoom > 4.5) {
+        zoom = 4.5;
+      }
+      var left = window.screen.availWidth < 700 ? -49.597 : -59.597;
+      var map = L.map("map", {
+        minZoom: zoom,
+        maxZoom: 18,
+        zoomSnap: 0.2,
+        zoomDelta: 0.25,
+        zoomControl: false,
+        boxZoom: false,
+        preferCanvas: true,
+        height: "480px",
+        width: "100%",
+      }).setView([-15.6014, left], zoom);
+      L.tileLayer("https://a.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        subdomains: "abcd",
+        minZoom: 0,
+        maxZoom: 18,
+        ext: "png",
+      }).addTo(map);
+
+      //icones
+
+      var greenIcon = L.icon({
+        iconUrl: "./ind.png",
+        iconSize: [18, 18], // size of the icon
+        //   shadowSize: [50, 64], // size of the shadow
+        // iconAnchor: [22, 94], // point of the icon which will correspond to marker's location
+        //   shadowAnchor: [4, 62], // the same for the shadow
+        // popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
+      });
+
+      // L.marker([-30.03, -51.23], { icon: greenIcon }).addTo(map);
+
+      //Popula/Desova os marcadores (circular)
+      var cidades = L.geoJSON(geoJsonFeature, {
+        pointToLayer: function (feature, latlng) {
+          return L.marker(latlng, { icon: greenIcon });
+        },
+        onEachFeature: function (feature, layer) {
+          var nome = feature.properties.nome;
+          var end = feature.properties.endereco;
+          var fone = feature.properties.fone;
+          // var site = feature.properties.site;
+          var cidade = feature.properties.cidade;
+
+          layer.bindPopup(
+            "<strong>" +
+              nome +
+              "</strong><br/>" +
+              end +
+              "<br/>" +
+              "Tel.:" +
+              fone +
+              "<br>" +
+              cidade
+            // "</br><a href='https://" +
+            // site +
+            // "' target='_blank'>" +
+            // site +
+            // "</a>"
+          );
+          layer.on("mouseover", function () {
+            layer.openPopup();
+          });
+          // layer.on("mouseout", function () {
+          //   layer.closePopup();
+          // });
+        },
+      });
+      cidades.addTo(map);
+    </script>
+  </body>
+</html>
